@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <h1>Checkout</h1>
+    <button onclick="Checkout()">Checkout with hardcoded items</button>
+  </body>
+  <script>
+    function Checkout() {
+      const lineItems = [
+        {
+          price: "price_1MmYqVHbLz6qKWZ5hrkATlhX",
+          quantity: 1,
+        },
+        {
+          price: "price_1MmYGHHbLz6qKWZ5rKteRDTy",
+          quantity: 2,
+        },
+      ];
+
+      axios
+        .post("/api/checkout", JSON.stringify(lineItems), {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then(function (response) {
+          // console.log(response);
+          window.location.href = response.data;
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    }
+  </script>
+</html>
