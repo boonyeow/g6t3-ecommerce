@@ -37,9 +37,12 @@ services:
   #######################################
   kong-migration:
     container_name: kong-migration
-    image: kong:2.0.4
-    # command: sh -c "(kong migrations up || kong migrations bootstrap) && touch migrations_run && sleep 30"
-    entrypoint: sh -c "sleep 10 && kong migrations bootstrap -v"
+    build:
+      context: ./kong-migration
+      dockerfile: DockerFile
+    volumes:
+      - ./kong-migration/init.sh:/init.sh:ro
+    entrypoint: sh -c "sleep 10 && kong migrations bootstrap -v && ./init.sh"
     restart: on-failure
     networks:
       - kong-net
@@ -73,7 +76,7 @@ services:
     ports:
       - "8001:8001"
       - "8000:8000"
-
+      
   #######################################
   # Konga: Kong GUI
   #######################################
@@ -97,7 +100,6 @@ services:
       DB_DATABASE: konga_db
       KONGA_SEED_USER_DATA_SOURCE_FILE: /app/init_data.js
       DEFAULT_NODE: http://kong:8001/
-      NODE_ENV: development
 
   #######################################
   # Authentication Service

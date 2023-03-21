@@ -75,7 +75,7 @@ def login():
             "exp": str(datetime.datetime.now() + datetime.timedelta(seconds=200000000))
         }
 
-        token = jwt.encode(payload=payload_data, key=result["secret"], algorithm="HS256", headers={"kid": result["key"]})
+        token = jwt.encode(payload=payload_data, key=result["secret"], algorithm="HS256", headers={"iss": result["key"]})
         return {"message": "Login successful", "bearer_token": token}, 200
     else:
         return {"message": "Invalid credentials"}, 401
