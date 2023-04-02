@@ -82,12 +82,15 @@ def process_make_review(review):
     seller_email = product_result["data"]["seller_email"]
 
     print("\n-----Invoking mail microservice-----")
+    seller_email="esdg6t3@gmail.com"
     mail = {
         "recipient": seller_email,
         "type": "bad_review",
         "product_name": product_result["data"]["product_name"],
         "product_id": product_result["data"]["product_id"],
         "user_id": review_result["data"]["user_id"],
+        "review_stars": review["review_stars"],
+        "review_description":review["review_description"]
     }
     message = json.dumps(mail)
     amqp_setup.check_setup()

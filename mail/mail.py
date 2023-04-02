@@ -46,10 +46,20 @@ def send_email(body):
             product_name = incoming_data["product_name"]
             product_id = incoming_data["product_id"]
             reviewer_id = incoming_data["user_id"]
+            review_description = incoming_data["review_description"]
+            review_stars = incoming_data["review_stars"]
             result = send_mail(
                 recipient,
-                f"Bad review received on {product_name} by {reviewer_id}",
-                f"Hello,\n\n A user ({reviewer_id}) has just left an unsatisfactory review for your product at {FRONTEND_URL}/product/{product_id}\n\nYou may want to follow up with them for further details. Thank you for choosing ESD G6T3 as your e-commerce platform!\n\nRegards,\nESD G6T3",
+                f"Bad review ({review_stars} star) received on {product_name} by {reviewer_id}",
+                f"""
+                Hello,<br/><br/>
+                A user ({reviewer_id}) has just left an unsatisfactory review for your product ({FRONTEND_URL}/product/{product_id})<br/><br/>
+                This is the message left by the user: <b>{review_description}</b><br/><br/>
+                You may want to follow up with them for further details.<br/>
+                Thank you for choosing ESD G6T3 as your e-commerce platform!<br/><br/>
+                Regards,<br/>
+                ESD G6T3
+                """,
             )
 
         if result["code"] == 200:
@@ -75,6 +85,7 @@ def send_mail(recipient, subject, message):
                 "to": [recipient],
                 "subject": subject,
                 "text": message,
+                "html": message,
             },
         )
         if r.status_code == 200:
