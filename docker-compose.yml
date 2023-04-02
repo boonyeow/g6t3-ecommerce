@@ -184,21 +184,20 @@ services:
       - "5400:5400"
   
 
-
-  # #######################################
-  # # Make a review complex microservice
-  # #######################################
-  # make_a_review:
-  #   container_name: make_a_review
-  #   build:
-  #     context: ./make_a_review
-  #     dockerfile: Dockerfile
-  #   image: alvinling2021/make_a_review
-  #   restart: always
-  #   environment:
-  #     - REVIEW_URL=http://review:8080/review
-  #     - ORDER_URL=http://order:5300/order
-  #     - PRODUCT_URL=http://product:5400/product
-  #     - PYTHONUNBUFFERED=1
-  #   ports:
-  #     - "5200:5200"
+  #######################################
+  # Make a review complex microservice
+  #######################################
+  make_a_review:
+    container_name: make_a_review
+    build:
+      context: ./make_a_review
+      dockerfile: Dockerfile
+    image: alvinling2021/make_a_review
+    restart: always
+    environment:
+      - REVIEW_URL=http://review:8080/review
+      - ORDER_URL=http://order:5300/order
+      - PRODUCT_URL=http://product:5400/product
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "5200:5200"
