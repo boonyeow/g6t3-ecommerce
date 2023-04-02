@@ -1,111 +1,165 @@
-from flask import Flask, request, jsonify, render_template
+import datetime
+from flask import Flask, request, jsonify
 from pymongo import MongoClient
-from bson import json_util, ObjectId
-import json
+from flask_cors import CORS
 
-app = Flask(__name__)
-
+# DB Configuration
 URI = "mongodb+srv://esdg6t3:root@esdg6t3.rs7urs2.mongodb.net/test"
 mongo_db_connection = MongoClient(URI)
-# Database name (DB icon inside the MongoDB Compass GUI)
-my_database = mongo_db_connection["order"]
+order_database = mongo_db_connection["order"]
+order_collection = order_database["order_details"]
 
-# Collection/Table name (Folder icon inside the MongoDB Compass GUI)
-my_collection = my_database["order_details"]
+# Flask Configuration
+app = Flask(__name__)
+CORS(app)
 
-@app.route('/order')
-#def index():
- #   return render_template('index.html')
 
-#get all details from collection - order_details
-def getAll():
+# get all orders from collection - order_details
+@app.route("/order/get")
+def get_all():
+    try:
+        all_orders = order_collection.find()
+        result = []
+        for order in all_orders:
+            del order["_id"]
+            if order:
+                result.append(order)
 
-    order = my_collection.find()
-    orderlist = []
-    for x in order:
-        y = json.loads(json_util.dumps(x))
-        orderlist.append(y)
+        if not result:
+            return jsonify({"code": 404, "message": "No orders found."}), 404
 
-    if orderlist:
-        return jsonify(
-            {
-            "code": "200",
-            "data": {
-                "orders": [ordering for ordering in orderlist]}
-        }
+        return jsonify({"code": 200, "data": result}), 200
+
+    except Exception as e:
+        return (
+            jsonify({"code": 500, "message": f"Internal server error: {str(e)}"}),
+            500,
         )
-        
-        #orderlist
 
-    return jsonify(
-        {
-            "code": 404,
-            "message": "There are no orders."
-        }
-    ), 404
 
-#retrieve order by order id
-@app.route("/order/<string:orderid>")
-def find_by_orderid(orderid):
-    myquery = {"order_id": orderid}
-    order = my_collection.find(myquery)
-    query_list = []
-    for x in order: 
-        y = json.loads(json_util.dumps(x))
-        query_list.append(y)
+# retrieve order by order id
+@app.route("/order/get/<string:order_id>")
+def find_by_order_id(order_id):
+    try:
+        order = order_collection.find_one({"order_id": order_id})
+        if not order:
+            return jsonify({"code": 404, "message": "Order not found."}), 404
 
-    if query_list:
-        return jsonify(
-            {
-                "code": 200,
-                "data": [ordering for ordering in query_list]
-            }
+        del order["_id"]
+
+        return jsonify({"code": 200, "data": order}), 200
+
+    except Exception as e:
+        return (
+            jsonify({"code": 500, "message": f"Internal server error: {str(e)}"}),
+            500,
         )
-    return jsonify(
-        {
-            "code": 404,
-            "message": "Order not found."
-        }
-    ), 404
 
-@app.route("/order/<string:orderid>", methods=['POST'])
-def create_order(orderid):
-    myquery = {"order_id": orderid}
-    order = my_collection.find(myquery)
-    query_list = []
-    for x in order: 
-        y = json.loads(json_util.dumps(x))
-        query_list.append(y)
 
-    if len(query_list) >0:
-        return jsonify(
-            {
-                "code": 400,
-                "data": {
-                    "order_id":orderid
-                },
-                "message": "Order already exists."
-            }
-        ), 400
-    
-    else:
-        data = request.get_json()
-        my_collection.insert_one(
-            {
-                "order_id": data["order_id"],
-                "product_id": data["product_id"],
-                "user_id": data["user_id"]
-            }
+@app.route("/order/get/user/<string:user_id>")
+def find_by_user_id(user_id):
+    try:
+        orders = order_collection.find({"user_id": user_id})
+        if not orders:
+            return jsonify({"code": 404, "message": "Order not found."}), 404
+
+        result = []
+        for order in orders:
+            del order["_id"]
+            if order:
+                result.append(order)
+
+        return jsonify({"code": 200, "data": result}), 200
+    except Exception as e:
+        return (
+            jsonify({"code": 500, "message": f"Internal server error: {str(e)}"}),
+            500,
         )
-        #order created successfully
-        return jsonify({
-            "code": "201",
-            "data": data
-        }), 201
-
-    #need except for if order not created successfully
 
 
+@app.route("/order/create", methods=["POST"])
+def create_new_order():
+    try:
+        if request.is_json:
+            order_request = request.get_json()
+            if not order_request.get("items") or not order_request.get("user_id"):
+                return jsonify(
+                    {
+                        "code": 400,
+                        "message": "Incorrect JSON request body provided."
+                        + str(request.get_json()),
+                    }
+                )
 
-if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+            new_order = {
+                "order_id": "O" + str(order_collection.count_documents({}) + 1),
+                "items": [item for item in order_request.get("items")],
+                "user_id": order_request.get("user_id"),
+                "time": datetime.datetime.utcnow(),
+                "status": "pending",
+            }
+            order_collection.insert_one(new_order)
+            del new_order["_id"]
+
+            return jsonify({"code": 200, "data": new_order}), 200
+
+        return (
+            jsonify(
+                {
+                    "code": 400,
+                    "message": "Invalid JSON request body: " + str(request.get_data()),
+                }
+            ),
+            400,
+        )
+    except Exception as e:
+        return (
+            jsonify({"code": 500, "message": f"Internal server error: {str(e)}"}),
+            500,
+        )
+
+
+@app.route("/order/complete/<string:order_id>", methods=["PUT"])
+def complete_order(order_id):
+    try:
+        order_collection.update_one(
+            {"order_id": order_id}, {"$set": {"status": "complete"}}
+        )
+        return jsonify({"code": 200, "message": "Successfully updated."}), 200
+    except Exception as e:
+        return (
+            jsonify({"code": 500, "message": f"Internal server error: {str(e)}"}),
+            500,
+        )
+
+
+@app.route("/order/failed/<string:order_id>", methods=["PUT"])
+def failed_order(order_id):
+    try:
+        order_collection.update_one(
+            {"order_id": order_id}, {"$set": {"status": "failed"}}
+        )
+        return jsonify({"code": 200, "message": "Successfully updated."}), 200
+    except Exception as e:
+        return (
+            jsonify({"code": 500, "message": f"Internal server error: {str(e)}"}),
+            500,
+        )
+
+
+@app.route("/order/<string:order_id>", methods=["DELETE"])
+def delete_order(order_id):
+    try:
+        ## Stupid fix for deleting orders
+        order_collection.delete_one({"order_id": order_id})
+        order_collection.insert_one({})
+        return jsonify({"code": 200, "message": "Successfully deleted."}), 200
+    except Exception as e:
+        return (
+            jsonify({"code": 500, "message": f"Internal server error: {str(e)}"}),
+            500,
+        )
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5300, debug=True)

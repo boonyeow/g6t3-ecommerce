@@ -3,6 +3,7 @@ version: "3"
 volumes:
   pgdata:
   kongadata:
+  rabbitmq_data:
 
 networks:
   kong-net:
@@ -39,7 +40,7 @@ services:
     container_name: kong-migration
     build:
       context: ./kong-migration
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
     volumes:
       - ./kong-migration/init.sh:/init.sh:ro
     entrypoint: sh -c "sleep 10 && kong migrations bootstrap -v && ./init.sh"
@@ -108,7 +109,96 @@ services:
     container_name: auth
     build:
       context: ./auth
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
     restart: always
     ports:
       - "5001:5001"
+  
+  #######################################
+  # RabbitMQ: Messaging broker
+  #######################################
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    hostname: esd-rabbit
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  #######################################
+  # Mail: Mailing microservice
+  #######################################
+  mail:
+    container_name: mail
+    build:
+      context: ./mail
+      dockerfile: Dockerfile
+    image: alvinling2021/mail
+    depends_on:
+      - rabbitmq
+    environment:
+      - rabbit_host=rabbitmq
+      - rabbit_port=5672
+      - PYTHONUNBUFFERED=1
+
+  #######################################
+  # Review microservice
+  #######################################
+  review:
+    container_name: review
+    build:
+      context: ./review
+      dockerfile: Dockerfile
+    image: alvinling2021/review
+    restart: always
+    ports:
+      - "5100:8080"
+  
+  #######################################
+  # Order microservice
+  #######################################
+  order:
+    container_name: order
+    build:
+      context: ./order
+      dockerfile: Dockerfile
+    image: alvinling2021/order
+    restart: always
+    ports:
+      - "5300:5300"
+  
+  #######################################
+  # Product microservice
+  #######################################
+  product:
+    container_name: product
+    build:
+      context: ./product
+      dockerfile: Dockerfile
+    image: alvinling2021/product
+    restart: always
+    ports:
+      - "5400:5400"
+  
+
+
+  # #######################################
+  # # Make a review complex microservice
+  # #######################################
+  # make_a_review:
+  #   container_name: make_a_review
+  #   build:
+  #     context: ./make_a_review
+  #     dockerfile: Dockerfile
+  #   image: alvinling2021/make_a_review
+  #   restart: always
+  #   environment:
+  #     - REVIEW_URL=http://review:8080/review
+  #     - ORDER_URL=http://order:5300/order
+  #     - PRODUCT_URL=http://product:5400/product
+  #     - PYTHONUNBUFFERED=1
+  #   ports:
+  #     - "5200:5200"

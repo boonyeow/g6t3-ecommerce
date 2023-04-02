@@ -11,20 +11,26 @@ public class Review {
     @Id
     private String id;
     @Field("product_id")
-    private int productId;
+    private String product_id;
     @Field("user_id")
-    private int userId;
+    private String user_id;
     @Field("review_description")
-    private String reviewDescription;
+    private String review_description;
+    @Field("review_stars")
+    private int review_stars;
     @Field("review_date")
-    private Date reviewDate;
+    private Date review_date;
+    @Field("purchase_date")
+    private Date purchase_date;
 
-    public Review(String id, int productId, int userId, String reviewDescription, Date reviewDate) {
+    public Review(String id, String product_id, String user_id, String review_description, int review_stars, Date review_date, Date purchase_date) {
         this.id = id;
-        this.productId = productId;
-        this.userId = userId;
-        this.reviewDescription = reviewDescription;
-        this.reviewDate = reviewDate;
+        this.product_id = product_id;
+        this.user_id = user_id;
+        this.review_description = review_description;
+        this.review_stars = review_stars;
+        this.review_date = review_date;
+        this.purchase_date = purchase_date;
     }
 
     public String getId() {
@@ -35,35 +41,51 @@ public class Review {
         this.id = id;
     }
 
-    public int getProductId() {
-        return productId;
+    public String getProduct_id() {
+        return product_id;
     }
 
-    public void setProductId(int productId) {
-        this.productId = productId;
+    public void setProduct_id(String product_id) {
+        this.product_id = product_id;
     }
 
-    public int getUserId() {
-        return userId;
+    public String getUser_id() {
+        return user_id;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
     }
 
-    public String getReviewDescription() {
-        return reviewDescription;
+    public String getReview_description() {
+        return review_description;
     }
 
-    public void setReviewDescription(String reviewDescription) {
-        this.reviewDescription = reviewDescription;
+    public void setReview_description(String review_description) {
+        this.review_description = review_description;
     }
 
-    public Date getReviewDate() {
-        return reviewDate;
+    public int getReview_stars() {
+        return review_stars;
     }
 
-    public void setReviewDate(Date reviewDate) {
-        this.reviewDate = reviewDate;
+    public void setReview_stars(int review_stars) {
+        this.review_stars = review_stars;
+    }
+
+    public Date getReview_date() {
+        return review_date;
+    }
+
+    public void setReview_date(Date review_date) {
+        this.review_date = review_date;
+    }
+
+    public Date getPurchase_date() {
+        return purchase_date;
+    }
+
+    public void setPurchase_date(Date purchase_date) {
+        this.purchase_date = purchase_date;
     }
 }

@@ -1,5 +1,6 @@
 package com.esd.review;
 
+import com.esd.response.Response;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,42 +19,42 @@ public class ReviewService {
         this.reviewRepository = reviewRepository;
     }
 
-    public ResponseEntity<?> getReviewsByProductId(int productId) {
+    public ResponseEntity<Response> getReviewsByProductId(String product_id) {
         try {
-            List<Review> reviewsByProductId = reviewRepository.getReviewsByProductId(productId);
-            return ResponseEntity.status(HttpStatus.OK).body(reviewsByProductId);
+            List<Review> reviewsByProductId = reviewRepository.getReviewsByProductId(product_id);
+            return ResponseEntity.status(HttpStatus.OK).body(new Response(HttpStatus.OK.value(), reviewsByProductId, "Success!"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage().equals("") ? "Unable to get reviews." : e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Response(HttpStatus.INTERNAL_SERVER_ERROR.value(), null, e.getMessage().equals("") ? "Unable to get reviews." : e.getMessage()));
         }
     }
 
-    public ResponseEntity<?> getReviewsByUserId(int userId) {
+    public ResponseEntity<Response> getReviewsByUserId(String userId) {
         try {
             List<Review> reviewsByUserId = reviewRepository.getReviewsByUserId(userId);
-            return ResponseEntity.status(HttpStatus.OK).body(reviewsByUserId);
+            return ResponseEntity.status(HttpStatus.OK).body(new Response(HttpStatus.OK.value(), reviewsByUserId, "Success!"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage().equals("") ? "Unable to get reviews." : e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Response(HttpStatus.INTERNAL_SERVER_ERROR.value(), null, e.getMessage().equals("") ? "Unable to get reviews." : e.getMessage()));
         }
     }
 
-    public ResponseEntity<?> createReview(Review review) {
+    public ResponseEntity<Response> createReview(Review review) {
         try {
             review.setId(ObjectId.get().toString());
-            review.setReviewDate(new Date());
-            checkDuplicateReview(review.getProductId(), review.getUserId());
+            review.setReview_date(new Date());
+            checkDuplicateReview(review.getProduct_id(), review.getUser_id());
             Review savedReview = reviewRepository.save(review);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedReview);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new Response(HttpStatus.OK.value(), savedReview, "Success!"));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(e.getMessage().equals("") ? "Unable to create review." : e.getMessage());
+            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(new Response(HttpStatus.INTERNAL_SERVER_ERROR.value(), null, e.getMessage().equals("") ? "Unable to create review." : e.getMessage()));
         }
     }
 
-    public ResponseEntity<?> deleteReviewByReviewId(String reviewId) {
+    public ResponseEntity<Response> deleteReviewByReviewId(String reviewId) {
         reviewRepository.deleteById(reviewId);
-        return ResponseEntity.status(HttpStatus.OK).body("Successfully deleted!");
+        return ResponseEntity.status(HttpStatus.OK).body(new Response(HttpStatus.OK.value(), null, "Success!"));
     }
 
-    private void checkDuplicateReview(int productId, int userId) throws Exception {
+    private void checkDuplicateReview(String productId, String userId) throws Exception {
         boolean duplicate = reviewRepository.existsByProductIdAndUserId(productId, userId);
         if (duplicate) {
             throw new Exception("Review from this user on the product already exists.");

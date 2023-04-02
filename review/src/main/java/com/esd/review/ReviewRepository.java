@@ -8,11 +8,11 @@ import java.util.List;
 
 public interface ReviewRepository extends MongoRepository<Review, String> {
     @ExistsQuery("{'product_id': ?0, 'user_id': ?1}")
-    boolean existsByProductIdAndUserId(int productId, int userId);
+    boolean existsByProductIdAndUserId(String product_Id, String user_id);
 
     @Query("{'product_id': ?0}")
-    List<Review> getReviewsByProductId(int productId);
+    List<Review> getReviewsByProductId(String product_id);
 
     @Query("{'user_id': ?0}")
-    List<Review> getReviewsByUserId(int userId);
+    List<Review> getReviewsByUserId(String user_id);
 }
