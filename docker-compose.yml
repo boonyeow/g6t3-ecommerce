@@ -137,6 +137,7 @@ services:
       context: ./mail
       dockerfile: Dockerfile
     image: alvinling2021/mail
+    restart: always
     depends_on:
       - rabbitmq
     environment:
@@ -194,10 +195,14 @@ services:
       dockerfile: Dockerfile
     image: alvinling2021/make_a_review
     restart: always
+    depends_on:
+      - rabbitmq
     environment:
       - REVIEW_URL=http://review:8080/review
       - ORDER_URL=http://order:5300/order
       - PRODUCT_URL=http://product:5400/product
       - PYTHONUNBUFFERED=1
+      - rabbit_host=rabbitmq
+      - rabbit_port=5672
     ports:
       - "5200:5200"

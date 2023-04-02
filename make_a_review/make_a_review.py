@@ -70,14 +70,15 @@ def process_make_review(review):
     review_result = invoke_http(REVIEW_URL, method="POST", json=review)
     print(review_result)
     print()
-    review_stars = review["review_stars"]
-    if review_result["code"] != 200 or review_stars >= 3:
+    if review_result["code"] != 200 or review["review_stars"] >= 3:
         return review_result
 
     print("\n-----Invoking product microservice-----")
     product_result = invoke_http(PRODUCT_URL + "/get/" + review["product_id"])
     print(product_result)
     print()
+    if product_result["code"] != 200:
+        return product_result
     seller_email = product_result["data"]["seller_email"]
 
     print("\n-----Invoking mail microservice-----")

@@ -77,7 +77,10 @@ def send_mail(recipient, subject, message):
                 "text": message,
             },
         )
-        return {"code": r.status_code, "message": "Successfully sent mail"}
+        if r.status_code == 200:
+            return {"code": r.status_code, "message": "Successfully sent mail"}
+        print(r)
+        return {"code": 500, "message": "Failed to send mail."}
     except Exception as e:
         return {"code": 500, "message": "Failed to send mail."}
 
