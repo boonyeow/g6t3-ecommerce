@@ -107,13 +107,14 @@ def add_item_to_user_cart(user_id):
 
         item_already_in_cart = False
         item_index = None
+        item_quantity = quantity
         for i in range(len(cart["items"])):
             item = cart["items"][i]
             if product_id == item["product_id"]:
                 item_already_in_cart = True
                 item_index = i
 
-                item["quantity"] = quantity
+                item_quantity = item_quantity + item["quantity"]
                 break
 
         if quantity > 0 and not item_already_in_cart:
@@ -128,10 +129,15 @@ def add_item_to_user_cart(user_id):
                     "image_url": image_url,
                 }
             )
-        if quantity == 0 and item_already_in_cart:
-            cart["items"].pop(item_index)
+
+        if item_already_in_cart:
+           if(quantity == 0):
+               cart["items"].pop(item_index)
+           else: 
+               cart["items"][item_index]["quantity"] = item_quantity
 
         cart["total_price"] = calculate_cart_total(cart["items"])
+        print(cart)
 
         cart_collection.update_one(
             {"user_id": user_id},
