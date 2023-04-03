@@ -10,7 +10,7 @@ import pika
 app = Flask(__name__)
 CORS(app)
 
-CART_URL = os.environ.get("CART_URL") or "http://localhost:5500"
+CART_URL = os.environ.get("CART_URL") or "http://localhost:5500/cart"
 PRODUCT_URL = os.environ.get("PRODUCT_URL") or "http://localhost:5400/product"
 ORDER_URL = os.environ.get("ORDER_URL") or "http://localhost:5300/order"
 PAYMENT_URL = os.environ.get("PAYMENT_URL") or "http://localhost:5300/order"

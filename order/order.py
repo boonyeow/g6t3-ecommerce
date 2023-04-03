@@ -122,8 +122,16 @@ def create_new_order():
 @app.route("/order/complete/<string:order_id>", methods=["PUT"])
 def complete_order(order_id):
     try:
+        order = order_collection.find_one({"order_id": order_id})
+        if not order:
+            return jsonify({"code": 404, "message": "Order not found."})
+
+        paid_amount = 0
+        for item in order["items"]:
+            paid_amount += item["price"] * item["quantity"]
         order_collection.update_one(
-            {"order_id": order_id}, {"$set": {"status": "complete"}}
+            {"order_id": order_id},
+            {"$set": {"status": "complete", "paid_amount": round(paid_amount, 2)}},
         )
         return jsonify({"code": 200, "message": "Successfully updated."}), 200
     except Exception as e:
@@ -137,7 +145,7 @@ def complete_order(order_id):
 def failed_order(order_id):
     try:
         order_collection.update_one(
-            {"order_id": order_id}, {"$set": {"status": "failed"}}
+            {"order_id": order_id}, {"$set": {"status": "failed", "paid_amount": 0}}
         )
         return jsonify({"code": 200, "message": "Successfully updated."}), 200
     except Exception as e:
