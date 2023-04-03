@@ -109,7 +109,7 @@ services:
     container_name: auth
     build:
       context: ./auth
-      dockerfile: Dockerfile
+      dockerfile: auth.Dockerfile
     restart: always
     ports:
       - "5001:5001"
@@ -135,7 +135,7 @@ services:
     container_name: mail
     build:
       context: ./mail
-      dockerfile: Dockerfile
+      dockerfile: mail.Dockerfile
     image: alvinling2021/mail
     restart: always
     depends_on:
@@ -152,7 +152,7 @@ services:
     container_name: review
     build:
       context: ./review
-      dockerfile: Dockerfile
+      dockerfile: review.Dockerfile
     image: alvinling2021/review
     restart: always
     ports:
@@ -165,7 +165,7 @@ services:
     container_name: order
     build:
       context: ./order
-      dockerfile: Dockerfile
+      dockerfile: order.Dockerfile
     image: alvinling2021/order
     restart: always
     ports:
@@ -178,12 +178,24 @@ services:
     container_name: product
     build:
       context: ./product
-      dockerfile: Dockerfile
+      dockerfile: product.Dockerfile
     image: alvinling2021/product
     restart: always
     ports:
       - "5400:5400"
-  
+
+  #######################################
+  # Cart microservice
+  #######################################
+  cart:
+    container_name: cart
+    build:
+      context: ./cart
+      dockerfile: cart.Dockerfile
+    image: alvinling2021/cart
+    restart: always
+    ports:
+      - "5500:5500"
 
   #######################################
   # Make a review complex microservice
@@ -192,11 +204,15 @@ services:
     container_name: make_a_review
     build:
       context: ./make_a_review
-      dockerfile: Dockerfile
+      dockerfile: make_a_review.Dockerfile
     image: alvinling2021/make_a_review
     restart: always
     depends_on:
       - rabbitmq
+      - order
+      - review
+      - product
+      - mail
     environment:
       - REVIEW_URL=http://review:8080/review
       - ORDER_URL=http://order:5300/order

@@ -11,7 +11,7 @@ app = Flask(__name__,
             static_folder='public')
 CORS(app)
 
-DOMAIN = 'http://127.0.0.1:5000'
+DOMAIN = 'http://127.0.0.1:5600'
 
 # URI = "mongodb+srv://esdg6t3:root@esdg6t3.rs7urs2.mongodb.net/test"
 # mongo_db_connection = MongoClient(URI)
@@ -43,4 +43,4 @@ def checkout():
 
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(port=5600, debug=True)

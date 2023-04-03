@@ -1,10 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from invokes import invoke_http
-import os, sys
-import json
 import amqp_setup
-
+import json
+import os, sys
 import pika
 
 app = Flask(__name__)
@@ -15,7 +14,7 @@ ORDER_URL = os.environ.get("ORDER_URL") or "http://localhost:5300/order"
 PRODUCT_URL = os.environ.get("PRODUCT_URL") or "http://localhost:5400/product"
 
 
-@app.route("/review/create_new_review", methods=["POST"])
+@app.route("/make_a_review", methods=["POST"])
 def make_a_review():
     """
     This is the function that handles making a new review
