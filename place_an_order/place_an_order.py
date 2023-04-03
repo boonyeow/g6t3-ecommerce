@@ -39,18 +39,43 @@ def place_an_order(user_id):
 
 def process_place_an_order(user_id):
     # Call cart microservice to get cart items
-    
+    print("\n-----Invoking cart microservice-----")
+    cart_result = invoke_http(CART_URL + f"/{user_id}", method="GET")
+    print(cart_result)
+    print()
+    cart_items = cart_result["data"]["items"]
+    if not cart_items:
+        return {"code": 400, "message": "Error. No items in cart."}
+    cart_item_ids = [item["product_id"] for item in cart_items]
+    product_quantities = {item["product_id"]: item["quantity"] for item in cart_items}
+
+    print("\n-----Invoking product microservice-----")
     # Call product microservice to check item availability
-    
+    product_result = invoke_http(
+        PRODUCT_URL + "/get_by_ids", method="GET", json={"products": cart_item_ids}
+    )
+    print(product_result)
+    print()
+    products = product_result["data"]
+    products_out_of_stock = []
+    for product in products:
+        stock = product["stock"]
+        product_id = product["product_id"]
+        if stock < product_quantities[product_id]:
+            products_out_of_stock.append(product)
+    print(products_out_of_stock)
+
     # Call order microservice to place an order
-    
+
     # Call payment microservice to pay
-    
+
     # Call mail microservice to notify
-    
+
     # Call product microservice to update product qty
-    
+
     # Call
+
+    return {"code": 200}
 
 
 if __name__ == "__main__":

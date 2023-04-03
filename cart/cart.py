@@ -194,6 +194,58 @@ def remove_item_from_cart(user_id, product_id):
         )
 
 
+@app.route("/cart/remove_items/<string:user_id>", methods=["POST"])
+def remove_items_from_cart(user_id):
+    try:
+        cart = cart_collection.find_one({"user_id": user_id})
+        if not cart:
+            return jsonify({"code": 404, "message": "Cart not found."}), 404
+
+        del cart["_id"]
+
+        if not request.is_json:
+            return (
+                jsonify({"code": 400, "message": "Invalid request body provided"}),
+                400,
+            )
+
+        request_body = request.get_json()
+        if not request_body.get("product_ids"):
+            return jsonify(
+                {
+                    "code": 400,
+                    "message": "Incorrect JSON request body. 'product_ids' is a required key."
+                    + str(request_body),
+                }
+            )
+
+        product_ids = set(request_body.get("product_ids"))
+        new_cart_items = [
+            item for item in cart["items"] if item["product_id"] not in product_ids
+        ]
+
+        cart["items"] = new_cart_items
+
+        cart["total_price"] = calculate_cart_total(cart["items"])
+
+        cart_collection.update_one(
+            {"user_id": user_id},
+            {
+                "$set": {
+                    "items": cart["items"],
+                    "total_price": round(cart["total_price"], 2),
+                }
+            },
+        )
+
+        return jsonify({"code": 200, "data": cart}), 200
+    except Exception as e:
+        return (
+            jsonify({"code": 500, "message": f"Internal server error: {str(e)}"}),
+            500,
+        )
+
+
 @app.route("/cart/set/<string:user_id>", methods=["POST"])
 def set_cart_items(user_id):
     """
