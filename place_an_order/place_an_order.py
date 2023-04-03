@@ -9,6 +9,7 @@ import pika
 app = Flask(__name__)
 CORS(app)
 
+
 CART_URL = os.environ.get("CART_URL") or "http://localhost:5500/cart"
 PRODUCT_URL = os.environ.get("PRODUCT_URL") or "http://localhost:5400/product"
 ORDER_URL = os.environ.get("ORDER_URL") or "http://localhost:5300/order"
@@ -32,9 +33,9 @@ def place_an_order(user_id):
         request_body = request.get_json()
 
         print("Placing a new order for user:", user_id)
-        print("Checking out the following items:", request_body["product_ids"])
+        print("Request details:", request_body)
 
-        result = process_place_an_order(user_id, set(request_body["product_ids"]))
+        result = process_place_an_order(user_id, request_body)
 
         return jsonify(result), result["code"]
 
@@ -50,15 +51,35 @@ def place_an_order(user_id):
         )
 
 
-def process_place_an_order(user_id, product_ids_to_checkout):
+def process_place_an_order(user_id, request_body):
+    product_ids_to_checkout = request_body["product_ids"]
+    card_details = request_body["card"]
+
+    # Call payment microservice to check card
+    print("\n-----Invoking payment microservice to check card-----")
+    card_results = invoke_http(
+        PAYMENT_URL + "/check_card_validity",
+        method="GET",
+        json={"card": card_details, "customer_email": user_id},
+    )
+    print(card_results)
+    print()
+
+    if card_results["code"] != 200:
+        return card_results
+
     # Call cart microservice to get cart items
     print("\n-----Invoking cart microservice-----")
     cart_result = invoke_http(CART_URL + f"/{user_id}", method="GET")
     print(cart_result)
     print()
+
     cart_items = cart_result["data"]["items"]
+    if cart_result["code"] != 200:
+        return cart_result
     if not cart_items:
         return {"code": 400, "message": "Error. No items in cart."}
+
     products_to_checkout = {
         item["product_id"]: item
         for item in cart_items
@@ -74,6 +95,9 @@ def process_place_an_order(user_id, product_ids_to_checkout):
     )
     print(product_result)
     print()
+    if product_result["code"] != 200:
+        return product_result
+
     products_out_of_stock = []
     for product in product_result["data"]:
         stock = product["stock"]
@@ -102,22 +126,82 @@ def process_place_an_order(user_id, product_ids_to_checkout):
     )
     print(order_result)
     print()
+
     if order_result["code"] != 200:
-        return {"code": 500, "message": "Failed to create order."}
+        return order_result
 
     # Call payment microservice to pay
-    print("\n-----Invoking payment microservice-----")
-    payment_response = invoke_http(PAYMENT_URL + "/checkout", method="POST")
-    print(payment_response)
-    print(payment_response["payment_link"])
+    print("\n-----Invoking payment microservice to pay-----")
+    payment_amount_cents = round(cart_result["data"]["total_price"] * 100)
+    payment_result = invoke_http(
+        PAYMENT_URL + "/make_payment",
+        method="POST",
+        json={"card": card_details, "payment_amount": payment_amount_cents},
+    )
+    print(payment_result)
+    print()
 
-    # Call mail microservice to notify
+    if payment_result["code"] != 200:
+        return payment_result
+
+    # Call order microservice to update order status
+    print("\n-----Invoking order microservice to update order status-----")
+    confirmed_order_results = invoke_http(
+        ORDER_URL + f"/complete/{order_result['data']['order_id']}", method="PUT"
+    )
+    print(confirmed_order_results)
+    print()
+
+    if confirmed_order_results["code"] != 200:
+        return confirmed_order_results
 
     # Call product microservice to update product qty
+    print("\n-----Invoking product microservice to update product stock-----")
+    update_product_stock = invoke_http(
+        PRODUCT_URL + "/subtract_stock",
+        method="PUT",
+        json={
+            "products": [
+                {
+                    "product_id": products_to_checkout[product].get("product_id"),
+                    "quantity": products_to_checkout[product].get("quantity"),
+                }
+                for product in products_to_checkout
+            ]
+        },
+    )
+    print(update_product_stock)
+    print()
 
-    # Call
+    if update_product_stock["code"] != 200:
+        return update_product_stock
 
-    return {"code": 200}
+    # Call cart microservice to remove purchased items
+    new_cart_result = invoke_http(
+        CART_URL + f"/remove_items/{user_id}",
+        method="POST",
+        json={"product_ids": product_ids_to_checkout},
+    )
+    print(new_cart_result)
+    print()
+
+    # Call mail microservice to notify
+    print("\n-----Invoking mail microservice-----")
+    mail = {
+        "recipient": user_id,
+        "type": "order_processing",
+        "order": confirmed_order_results["data"],
+    }
+    message = json.dumps(mail)
+    amqp_setup.check_setup()
+    amqp_setup.channel.basic_publish(
+        exchange=amqp_setup.exchangename,
+        routing_key="order.mail",
+        body=message,
+        properties=pika.BasicProperties(delivery_mode=2),
+    )
+
+    return {"code": 200, "message": "Order successfully placed."}
 
 
 if __name__ == "__main__":

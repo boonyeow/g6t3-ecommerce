@@ -61,6 +61,12 @@ def send_email(body):
                 ESD G6T3
                 """,
             )
+        elif incoming_data["type"] == "order_processing":
+            order = incoming_data["order"]
+            
+            subject=""
+            message=""
+            result=send_email(recipient, subject, message)
 
         if result["code"] == 200:
             print(f"Message succesfully sent to {recipient}")

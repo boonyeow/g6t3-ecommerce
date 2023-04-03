@@ -204,6 +204,38 @@ def update_stock(product_id, stock):
         )
 
 
+@app.route("/product/subtract_stock", methods=["PUT"])
+def subtract_stock():
+    try:
+        if not request.is_json:
+            return (
+                jsonify(
+                    {
+                        "code": 400,
+                        "message": "Invalid JSON request body: "
+                        + str(request.get_data()),
+                    }
+                ),
+                400,
+            )
+
+        products_to_update = request.get_json()["products"]
+        for product in products_to_update:
+            quantity, product_id = product.get("quantity"), product.get("product_id")
+            product_collection.update_one(
+                {"product_id": product_id}, {"$inc": {"stock": -quantity}}
+            )
+
+        return jsonify({"code": 200, "message": "Successfully updated"}), 200
+    except Exception as e:
+        return (
+            jsonify(
+                {"code": 500, "message": "Internal server error: {}".format(str(e))}
+            ),
+            500,
+        )
+
+
 @app.route("/product/<string:product_id>", methods=["DELETE"])
 def delete_product(product_id):
     try:

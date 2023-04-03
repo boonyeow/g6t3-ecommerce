@@ -96,7 +96,7 @@ def create_new_order():
                 "items": [item for item in order_request.get("items")],
                 "user_id": order_request.get("user_id"),
                 "time": datetime.datetime.utcnow(),
-                "status": "pending",
+                "status": "Pending",
             }
             order_collection.insert_one(new_order)
             del new_order["_id"]
@@ -120,7 +120,7 @@ def create_new_order():
 
 
 @app.route("/order/complete/<string:order_id>", methods=["PUT"])
-def complete_order(order_id):
+def complete_order_payment(order_id):
     try:
         order = order_collection.find_one({"order_id": order_id})
         if not order:
@@ -129,11 +129,21 @@ def complete_order(order_id):
         paid_amount = 0
         for item in order["items"]:
             paid_amount += item["price"] * item["quantity"]
+
+        order["paid_amount"] = round(paid_amount, 2)
+        order["status"] = "Processing"
+
         order_collection.update_one(
             {"order_id": order_id},
-            {"$set": {"status": "complete", "paid_amount": round(paid_amount, 2)}},
+            {"$set": {"status": order["status"], "paid_amount": order["paid_amount"]}},
         )
-        return jsonify({"code": 200, "message": "Successfully updated."}), 200
+
+        del order["_id"]
+
+        return (
+            jsonify({"code": 200, "message": "Successfully updated.", "data": order}),
+            200,
+        )
     except Exception as e:
         return (
             jsonify({"code": 500, "message": f"Internal server error: {str(e)}"}),
@@ -144,10 +154,24 @@ def complete_order(order_id):
 @app.route("/order/failed/<string:order_id>", methods=["PUT"])
 def failed_order(order_id):
     try:
+        order = order_collection.find_one({"order_id": order_id})
+        if not order:
+            return jsonify({"code": 404, "message": "Order not found."})
+
+        order["paid_amount"] = 0.00
+        order["status"] = "Failed"
+
         order_collection.update_one(
-            {"order_id": order_id}, {"$set": {"status": "failed", "paid_amount": 0}}
+            {"order_id": order_id},
+            {"$set": {"status": order["status"], "paid_amount": order["paid_amount"]}},
         )
-        return jsonify({"code": 200, "message": "Successfully updated."}), 200
+
+        del order["_id"]
+
+        return (
+            jsonify({"code": 200, "data": order, "message": "Successfully updated."}),
+            200,
+        )
     except Exception as e:
         return (
             jsonify({"code": 500, "message": f"Internal server error: {str(e)}"}),

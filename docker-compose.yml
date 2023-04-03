@@ -198,6 +198,19 @@ services:
       - "5500:5500"
 
   #######################################
+  # Payment microservice
+  #######################################
+  payment:
+    container_name: payment
+    build:
+      context: ./payment
+      dockerfile: payment.Dockerfile
+    image: alvinling2021/payment
+    restart: always
+    ports:
+      - "5700:5700"
+
+  #######################################
   # Make a review complex microservice
   #######################################
   make_a_review:
@@ -222,3 +235,26 @@ services:
       - rabbit_port=5672
     ports:
       - "5200:5200"
+
+  #######################################
+  # Place an order complex microservice
+  #######################################
+  place_an_order:
+    container_name: place_an_order
+    build:
+      context: ./place_an_order
+      dockerfile: place_an_order.Dockerfile
+    image: alvinling2021/place_an_order
+    restart: always
+    depends_on:
+      - rabbitmq
+      - cart
+      - order
+      - product
+      - payment
+      - mail
+    environment:
+      - CART_URL=http://cart:5500/cart
+      - PRODUCT_URL=http://product:5500/product
+      - ORDER_URL=http://order:5500/order
+      - PAYMENT_URL=http://payment:5500/payment
