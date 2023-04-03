@@ -3,7 +3,8 @@ from flask_cors import CORS
 from invokes import invoke_http
 import amqp_setup
 import json
-import os, sys
+import os
+import sys
 import pika
 
 app = Flask(__name__)
@@ -43,7 +44,8 @@ def make_a_review():
             print(exception_str)
 
             return (
-                jsonify({"code": 500, "message": fname + " error: " + exception_str}),
+                jsonify({"code": 500, "message": fname +
+                        " error: " + exception_str}),
                 500,
             )
     return (
@@ -60,7 +62,8 @@ def make_a_review():
 def process_make_review(review):
     # Call order microservice to get order_date
     print("\n-----Invoking order microservice-----")
-    order_result = invoke_http(ORDER_URL + "/get/" + review["order_id"], method="GET")
+    order_result = invoke_http(
+        ORDER_URL + "/get/" + review["order_id"], method="GET")
     print(order_result)
     print()
     review["purchase_date"] = order_result["data"]["time"]
@@ -69,7 +72,7 @@ def process_make_review(review):
     review_result = invoke_http(REVIEW_URL, method="POST", json=review)
     print(review_result)
     print()
-    if review_result["code"] != 200 or review["review_stars"] >= 3:
+    if review_result["code"] != 200 or int(review["review_stars"]) >= 3:
         return review_result
 
     print("\n-----Invoking product microservice-----")
@@ -81,7 +84,7 @@ def process_make_review(review):
     seller_email = product_result["data"]["seller_email"]
 
     print("\n-----Invoking mail microservice-----")
-    seller_email="esdg6t3@gmail.com"
+    seller_email = "esdg6t3@gmail.com"
     mail = {
         "recipient": seller_email,
         "type": "bad_review",
@@ -89,7 +92,7 @@ def process_make_review(review):
         "product_id": product_result["data"]["product_id"],
         "user_id": review_result["data"]["user_id"],
         "review_stars": review["review_stars"],
-        "review_description":review["review_description"]
+        "review_description": review["review_description"]
     }
     message = json.dumps(mail)
     amqp_setup.check_setup()
