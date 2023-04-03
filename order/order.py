@@ -155,19 +155,5 @@ def failed_order(order_id):
         )
 
 
-@app.route("/order/<string:order_id>", methods=["DELETE"])
-def delete_order(order_id):
-    try:
-        ## Stupid fix for deleting orders
-        order_collection.delete_one({"order_id": order_id})
-        order_collection.insert_one({})
-        return jsonify({"code": 200, "message": "Successfully deleted."}), 200
-    except Exception as e:
-        return (
-            jsonify({"code": 500, "message": f"Internal server error: {str(e)}"}),
-            500,
-        )
-
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5300, debug=True)
