@@ -40,7 +40,7 @@ services:
     container_name: kong-migration
     build:
       context: ./kong-migration
-      dockerfile: Dockerfile
+      dockerfile: migration.Dockerfile
     volumes:
       - ./kong-migration/init.sh:/init.sh:ro
     entrypoint: sh -c "sleep 10 && kong migrations bootstrap -v && ./init.sh"
