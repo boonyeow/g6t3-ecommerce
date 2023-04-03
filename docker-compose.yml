@@ -258,3 +258,8 @@ services:
       - PRODUCT_URL=http://product:5500/product
       - ORDER_URL=http://order:5500/order
       - PAYMENT_URL=http://payment:5500/payment
+      - PYTHONUNBUFFERED=1
+      - rabbit_host=rabbitmq
+      - rabbit_port=5672
+    ports:
+      - "5600:5600"
