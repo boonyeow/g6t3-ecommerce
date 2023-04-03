@@ -16,31 +16,12 @@ ORDER_URL = os.environ.get("ORDER_URL") or "http://localhost:5300/order"
 PAYMENT_URL = os.environ.get("PAYMENT_URL") or "http://localhost:5300/order"
 
 
-@app.route("/place_an_order", methods=["POST"])
-def place_an_order():
-    """
-    This is the function that handles placing a new order
-    Format of request body:
-    {
-        "user_id"
-    }
-    """
-    if not request.is_json:
-        return (
-            jsonify(
-                {
-                    "code": 400,
-                    "message": "Invalid JSON request body: " + str(request.get_data()),
-                }
-            ),
-            400,
-        )
-
+@app.route("/place_an_order/<string:user_id>", methods=["POST"])
+def place_an_order(user_id):
     try:
-        request_body = request.get_json()
-        print("request_body:", request_body)
+        print("Placing a new order for user:", user_id)
 
-        result = process_place_an_order(request_body)
+        result = process_place_an_order(user_id)
 
         return jsonify(result), result["code"]
 
@@ -56,5 +37,22 @@ def place_an_order():
         )
 
 
-def process_place_an_order(request_body):
+def process_place_an_order(user_id):
+    # Call cart microservice to get cart items
     
+    # Call product microservice to check item availability
+    
+    # Call order microservice to place an order
+    
+    # Call payment microservice to pay
+    
+    # Call mail microservice to notify
+    
+    # Call product microservice to update product qty
+    
+    # Call
+
+
+if __name__ == "__main__":
+    print(f"This is flask {os.path.basename(__file__)} for placing an order for a user")
+    app.run(host="0.0.0.0", port=5600, debug=True)

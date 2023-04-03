@@ -82,6 +82,53 @@ def get_product_by_id(product_id):
         )
 
 
+@app.route("/product/get_by_ids")
+def get_products_by_ids():
+    try:
+        if not request.is_json:
+            return (
+                jsonify(
+                    {
+                        "code": 400,
+                        "message": "Incorrect JSON request body."
+                        + str(request.get_data()),
+                    }
+                ),
+                400,
+            )
+
+        request_body = request.get_json()
+
+        if not request_body.get("products"):
+            return (
+                jsonify(
+                    {
+                        "code": 400,
+                        "message": "Incorrect JSON request body. 'products' is required"
+                        + str(request_body),
+                    }
+                ),
+                400,
+            )
+
+        product_ids = request_body.get("products")
+        products = product_collection.find({"product_id": {"$in": product_ids}})
+        result = []
+        for product in products:
+            del product["_id"]
+            result.append(product)
+
+        return jsonify({"code": 200, "data": result}), 200
+
+    except Exception as e:
+        return (
+            jsonify(
+                {"code": 500, "message": "Internal server error: {}".format(str(e))}
+            ),
+            500,
+        )
+
+
 @app.route("/product/create", methods=["POST"])
 def create_product():
     try:
@@ -92,6 +139,7 @@ def create_product():
                 or not product_request.get("price")
                 or not product_request.get("price_api")
                 or not product_request.get("seller_email")
+                or not product_request.get("image_url")
             ):
                 return (
                     {
@@ -110,6 +158,7 @@ def create_product():
                 else int(product_request.get("stock")),
                 "price_api": product_request.get("price_api"),
                 "seller_email": product_request.get("seller_email"),
+                "image_url": product_request.get("image_url"),
             }
 
             product_collection.insert_one(new_product)

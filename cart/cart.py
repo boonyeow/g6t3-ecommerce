@@ -28,6 +28,7 @@ def check_valid_product_request(product):
         or not product.get("price_api")
         or not product.get("seller_email")
         or product.get("quantity") == None
+        or not product.get("image_url")
     ):
         return False
     return True
@@ -78,12 +79,15 @@ def add_item_to_user_cart(user_id):
 
         request_body = request.get_json()
         if not check_valid_product_request(request_body):
-            return jsonify(
-                {
-                    "code": 400,
-                    "message": "Incomplete JSON request body provided:"
-                    + str(request_body),
-                }
+            return (
+                jsonify(
+                    {
+                        "code": 400,
+                        "message": "Incomplete JSON request body provided:"
+                        + str(request_body),
+                    }
+                ),
+                400,
             )
 
         cart = cart_collection.find_one({"user_id": user_id})
@@ -99,6 +103,7 @@ def add_item_to_user_cart(user_id):
         price_api = request_body.get("price_api")
         seller_email = request_body.get("seller_email")
         quantity = request_body.get("quantity")
+        image_url = request_body.get("image_url")
 
         item_already_in_cart = False
         item_index = None
@@ -120,6 +125,7 @@ def add_item_to_user_cart(user_id):
                     "price_api": price_api,
                     "seller_email": seller_email,
                     "quantity": quantity,
+                    "image_url": image_url,
                 }
             )
         if quantity == 0 and item_already_in_cart:
@@ -180,7 +186,7 @@ def remove_item_from_cart(user_id, product_id):
             },
         )
 
-        return jsonify({"code": 200, "data": cart})
+        return jsonify({"code": 200, "data": cart}), 200
     except Exception as e:
         return (
             jsonify({"code": 500, "message": f"Internal server error: {str(e)}"}),
@@ -213,23 +219,29 @@ def set_cart_items(user_id):
     """
     try:
         if not request.is_json:
-            return jsonify(
-                {
-                    "code": 400,
-                    "message": "Invalid JSON request body provided:"
-                    + str(request.get_data()),
-                }
+            return (
+                jsonify(
+                    {
+                        "code": 400,
+                        "message": "Invalid JSON request body provided:"
+                        + str(request.get_data()),
+                    }
+                ),
+                400,
             )
 
         request_body = request.get_json()
         for product in request_body:
             if not check_valid_product_request(product):
-                return jsonify(
-                    {
-                        "code": 400,
-                        "message": "Incomplete JSON request body provided:"
-                        + str(request_body),
-                    }
+                return (
+                    jsonify(
+                        {
+                            "code": 400,
+                            "message": "Incomplete JSON request body provided:"
+                            + str(request_body),
+                        }
+                    ),
+                    400,
                 )
 
         cart = cart_collection.find_one({"user_id": user_id})
@@ -247,6 +259,7 @@ def set_cart_items(user_id):
             price_api = product.get("price_api")
             seller_email = product.get("seller_email")
             quantity = product.get("quantity")
+            image_url = product.get("image_url")
             if product_id not in product_ids_in_cart and quantity > 0:
                 cart["items"].append(
                     {
@@ -256,6 +269,7 @@ def set_cart_items(user_id):
                         "price_api": price_api,
                         "seller_email": seller_email,
                         "quantity": quantity,
+                        "image_url": image_url,
                     }
                 )
 
