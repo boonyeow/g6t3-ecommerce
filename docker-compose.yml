@@ -107,6 +107,8 @@ services:
   #######################################
   auth:
     container_name: auth
+    networks:
+      - kong-net
     build:
       context: ./auth
       dockerfile: auth.Dockerfile
@@ -119,6 +121,8 @@ services:
   #######################################
   rabbitmq:
     container_name: rabbitmq
+    networks:
+      - kong-net
     image: rabbitmq:3-management
     hostname: esd-rabbit
     restart: always
@@ -133,6 +137,8 @@ services:
   #######################################
   mail:
     container_name: mail
+    networks:
+      - kong-net
     build:
       context: ./mail
       dockerfile: mail.Dockerfile
@@ -150,6 +156,8 @@ services:
   #######################################
   review:
     container_name: review
+    networks:
+      - kong-net
     build:
       context: ./review
       dockerfile: review.Dockerfile
@@ -163,6 +171,8 @@ services:
   #######################################
   order:
     container_name: order
+    networks:
+      - kong-net
     build:
       context: ./order
       dockerfile: order.Dockerfile
@@ -176,6 +186,8 @@ services:
   #######################################
   product:
     container_name: product
+    networks:
+      - kong-net
     build:
       context: ./product
       dockerfile: product.Dockerfile
@@ -189,6 +201,8 @@ services:
   #######################################
   cart:
     container_name: cart
+    networks:
+      - kong-net
     build:
       context: ./cart
       dockerfile: cart.Dockerfile
@@ -202,6 +216,8 @@ services:
   #######################################
   payment:
     container_name: payment
+    networks:
+      - kong-net
     build:
       context: ./payment
       dockerfile: payment.Dockerfile
@@ -215,6 +231,8 @@ services:
   #######################################
   product_notification:
     container_name: product_notification
+    networks:
+      - kong-net
     build:
       context: ./product_notification
       dockerfile: product_notification.Dockerfile
@@ -228,6 +246,8 @@ services:
   #######################################
   add_to_cart:
     container_name: add_to_cart
+    networks:
+      - kong-net
     build:
       context: ./add_to_cart
       dockerfile: add_to_cart.Dockerfile
@@ -248,6 +268,8 @@ services:
   #######################################
   make_a_review:
     container_name: make_a_review
+    networks:
+      - kong-net
     build:
       context: ./make_a_review
       dockerfile: make_a_review.Dockerfile
@@ -274,6 +296,8 @@ services:
   #######################################
   place_an_order:
     container_name: place_an_order
+    networks:
+      - kong-net
     build:
       context: ./place_an_order
       dockerfile: place_an_order.Dockerfile
