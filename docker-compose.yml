@@ -211,6 +211,19 @@ services:
       - "5700:5700"
 
   #######################################
+  # Product notification microservice  
+  #######################################
+  product_notification:
+    container_name: product_notification
+    build:
+      context: ./product_notification
+      dockerfile: product_notification.Dockerfile
+    image: alvinling2021/product_notification
+    restart: always
+    ports:
+      -"5800:5800"
+
+  #######################################
   # Make a review complex microservice
   #######################################
   make_a_review:
