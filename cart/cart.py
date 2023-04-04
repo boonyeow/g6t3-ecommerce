@@ -93,44 +93,45 @@ def add_item_to_user_cart(user_id):
         if not cart:
             cart = {"user_id": user_id, "items": [], "total_price": 0}
             cart_collection.insert_one(cart)
-            del cart["_id"]
 
         product_id = request_body.get("product_id")
-        product_name = request_body.get("product_name")
-        price = request_body.get("price")
-        seller_email = request_body.get("seller_email")
         quantity = request_body.get("quantity")
-        image_url = request_body.get("image_url")
 
         item_already_in_cart = False
-        item_index = None
-        item_quantity = quantity
         for i in range(len(cart["items"])):
             item = cart["items"][i]
             if product_id == item["product_id"]:
                 item_already_in_cart = True
-                item_index = i
 
-                item_quantity = item_quantity + item["quantity"]
+                # Changes item qty directly
+                item["quantity"] += quantity
+                if item["quantity"] <= 0:
+                    cart["items"].pop(i)
                 break
 
-        if quantity > 0 and not item_already_in_cart:
-            cart["items"].append(
-                {
-                    "product_id": product_id,
-                    "product_name": product_name,
-                    "price": price,
-                    "seller_email": seller_email,
-                    "quantity": quantity,
-                    "image_url": image_url,
-                }
-            )
-
-        if item_already_in_cart:
-            if quantity == 0:
-                cart["items"].pop(item_index)
+        if not item_already_in_cart:
+            if quantity < 0:
+                return jsonify(
+                    {
+                        "code": 400,
+                        "message": "Cannot have negative item quantity in cart",
+                    }
+                )
             else:
-                cart["items"][item_index]["quantity"] = item_quantity
+                product_name = request_body.get("product_name")
+                price = request_body.get("price")
+                seller_email = request_body.get("seller_email")
+                image_url = request_body.get("image_url")
+                cart["items"].append(
+                    {
+                        "product_id": product_id,
+                        "product_name": product_name,
+                        "price": price,
+                        "seller_email": seller_email,
+                        "quantity": quantity,
+                        "image_url": image_url,
+                    }
+                )
 
         cart["total_price"] = calculate_cart_total(cart["items"])
         print(cart)

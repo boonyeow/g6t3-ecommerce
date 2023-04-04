@@ -224,7 +224,27 @@ services:
       - "5800:5800"
 
   #######################################
-  # Make a review complex microservice
+  # Add to cart complex microservice 1
+  #######################################
+  add_to_cart:
+    container_name: add_to_cart
+    build:
+      context: ./add_to_cart
+      dockerfile: add_to_cart.Dockerfile
+    restart: always
+    depends_on:
+      - product
+      - cart
+    environment:
+      - CART_URL=http://cart:5500/cart
+      - PRODUCT_URL=http://product:5400/product
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "5900:5900"
+
+
+  #######################################
+  # Make a review complex microservice 2
   #######################################
   make_a_review:
     container_name: make_a_review
@@ -250,7 +270,7 @@ services:
       - "5200:5200"
 
   #######################################
-  # Place an order complex microservice
+  # Place an order complex microservice 3
   #######################################
   place_an_order:
     container_name: place_an_order

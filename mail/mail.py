@@ -13,7 +13,7 @@ routing_key = "*.mail"
 MAILGUN_API_KEY = "2e180d571da57a8248b82a70678ed950-30344472-13c94507"
 MAILGUN_DOMAIN_NAME = "sandbox061f45162bc1421eaa4af62f3b6446ae.mailgun.org"
 FRONTEND_URL = "http://localhost:5173"
-SITE_NAME = ""
+SITE_NAME = "LEROY THAM JUN HAN @ Computational Thinking SNAKE"
 
 
 def receive_mail():
