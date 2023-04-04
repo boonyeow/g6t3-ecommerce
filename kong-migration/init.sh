@@ -78,7 +78,7 @@ curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/routes \
 
 SERVICE_NAME="review_service"
 SERVICE_HOST="review"
-SERVICE_PORT="5100"
+SERVICE_PORT="8080"
 SERVICE_PATH="/review"
 ROUTE_NAME="review_route"
 ROUTE_PATH="/api/v1/review"
