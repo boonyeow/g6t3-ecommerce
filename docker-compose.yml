@@ -221,7 +221,7 @@ services:
     image: alvinling2021/product_notification
     restart: always
     ports:
-      -"5800:5800"
+      - "5800:5800"
 
   #######################################
   # Make a review complex microservice
