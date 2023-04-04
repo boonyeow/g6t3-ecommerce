@@ -56,4 +56,6 @@ def make_payment():
 
 
 if __name__ == "__main__":
+    print("Go to the url below for test card numbers")
+    print("https://stripe.com/docs/testing#cards")
     app.run(host="0.0.0.0", port=5700, debug=True)

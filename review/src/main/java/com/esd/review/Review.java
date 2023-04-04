@@ -14,6 +14,8 @@ public class Review {
     private String product_id;
     @Field("user_id")
     private String user_id;
+    @Field("order_id")
+    private String order_id;
     @Field("review_description")
     private String review_description;
     @Field("review_stars")
@@ -23,14 +25,23 @@ public class Review {
     @Field("purchase_date")
     private Date purchase_date;
 
-    public Review(String id, String product_id, String user_id, String review_description, int review_stars, Date review_date, Date purchase_date) {
+    public Review(String id, String product_id, String user_id, String order_id, String review_description, int review_stars, Date review_date, Date purchase_date) {
         this.id = id;
         this.product_id = product_id;
         this.user_id = user_id;
+        this.order_id = order_id;
         this.review_description = review_description;
         this.review_stars = review_stars;
         this.review_date = review_date;
         this.purchase_date = purchase_date;
+    }
+
+    public String getOrder_id() {
+        return order_id;
+    }
+
+    public void setOrder_id(String order_id) {
+        this.order_id = order_id;
     }
 
     public String getId() {

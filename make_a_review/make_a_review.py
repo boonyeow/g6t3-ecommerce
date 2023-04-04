@@ -44,8 +44,7 @@ def make_a_review():
             print(exception_str)
 
             return (
-                jsonify({"code": 500, "message": fname +
-                        " error: " + exception_str}),
+                jsonify({"code": 500, "message": fname + " error: " + exception_str}),
                 500,
             )
     return (
@@ -62,8 +61,7 @@ def make_a_review():
 def process_make_review(review):
     # Call order microservice to get order_date
     print("\n-----Invoking order microservice-----")
-    order_result = invoke_http(
-        ORDER_URL + "/get/" + review["order_id"], method="GET")
+    order_result = invoke_http(ORDER_URL + "/get/" + review["order_id"], method="GET")
     print(order_result)
     print()
     review["purchase_date"] = order_result["data"]["time"]
@@ -92,7 +90,7 @@ def process_make_review(review):
         "product_id": product_result["data"]["product_id"],
         "user_id": review_result["data"]["user_id"],
         "review_stars": review["review_stars"],
-        "review_description": review["review_description"]
+        "review_description": review["review_description"],
     }
     message = json.dumps(mail)
     amqp_setup.check_setup()

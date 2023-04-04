@@ -19,7 +19,7 @@ public class ReviewController {
         return reviewService.getReviewsByProductId(product_id);
     }
 
-    @GetMapping("/get/user/{userId}")
+    @GetMapping("/get/user/{user_id}")
     public ResponseEntity<?> getReviewsByUserId(@PathVariable String user_id) {
         return reviewService.getReviewsByUserId(user_id);
     }

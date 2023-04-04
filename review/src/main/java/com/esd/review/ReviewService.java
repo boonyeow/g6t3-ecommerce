@@ -41,7 +41,7 @@ public class ReviewService {
         try {
             review.setId(ObjectId.get().toString());
             review.setReview_date(new Date());
-            checkDuplicateReview(review.getProduct_id(), review.getUser_id());
+            checkDuplicateReview(review.getProduct_id(), review.getUser_id(), review.getOrder_id());
             Review savedReview = reviewRepository.save(review);
             return ResponseEntity.status(HttpStatus.CREATED).body(new Response(HttpStatus.OK.value(), savedReview, "Success!"));
         } catch (Exception e) {
@@ -54,10 +54,10 @@ public class ReviewService {
         return ResponseEntity.status(HttpStatus.OK).body(new Response(HttpStatus.OK.value(), null, "Success!"));
     }
 
-    private void checkDuplicateReview(String productId, String userId) throws Exception {
-        boolean duplicate = reviewRepository.existsByProductIdAndUserId(productId, userId);
+    private void checkDuplicateReview(String productId, String userId, String orderId) throws Exception {
+        boolean duplicate = reviewRepository.existsByProductIdAndUserIdAndOrderId(productId, userId, orderId);
         if (duplicate) {
-            throw new Exception("Review from this user on the product already exists.");
+            throw new Exception("Review from this user on the product from the same order already exists.");
         }
     }
 
