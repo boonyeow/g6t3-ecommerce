@@ -196,6 +196,18 @@ services:
     ports:
       - "5400:5400"
 
+  product_copy:
+    container_name: product_copy
+    networks:
+      - kong-net
+    build:
+      context: ./product
+      dockerfile: product.Dockerfile
+    image: alvinling2021/product
+    restart: always
+    ports:
+      - "5450:5400"
+
   #######################################
   # Cart microservice
   #######################################

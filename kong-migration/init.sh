@@ -46,31 +46,6 @@ curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/routes \
   --data "paths[]=${ROUTE_PATH}" \
   --data "name=${ROUTE_NAME}"
 
-#######################################
-# Product Service
-#######################################
-
-SERVICE_NAME="product_service"
-SERVICE_HOST="product"
-SERVICE_PORT="5400"
-SERVICE_PATH="/product"
-ROUTE_NAME="product_route"
-ROUTE_PATH="/api/v1/product"
-
-curl -i -X POST http://kong:8001/services \
-    --data "name=${SERVICE_NAME}" \
-    --data "url=http://${SERVICE_HOST}:${SERVICE_PORT}${SERVICE_PATH}"
-
-curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/plugins \
-    --data "name=jwt" \
-    
-curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/plugins \
-    --data "name=cors" \
-
-curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/routes \
-  --data "paths[]=${ROUTE_PATH}" \
-  --data "name=${ROUTE_NAME}"
-
 
 #######################################
 # Review microservice
@@ -148,30 +123,7 @@ curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/routes \
   --data "paths[]=${ROUTE_PATH}" \
   --data "name=${ROUTE_NAME}"
   
-#######################################
-# Product microservice
-#######################################
 
-SERVICE_NAME="product_service"
-SERVICE_HOST="product"
-SERVICE_PORT="5400"
-SERVICE_PATH="/product"
-ROUTE_NAME="product_route"
-ROUTE_PATH="/api/v1/product"
-
-curl -i -X POST http://kong:8001/services \
-    --data "name=${SERVICE_NAME}" \
-    --data "url=http://${SERVICE_HOST}:${SERVICE_PORT}${SERVICE_PATH}"
-
-curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/plugins \
-    --data "name=jwt" \
-    
-curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/plugins \
-    --data "name=cors" \
-
-curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/routes \
-  --data "paths[]=${ROUTE_PATH}" \
-  --data "name=${ROUTE_NAME}"
 
 #######################################
 # Cart microservice
@@ -297,3 +249,47 @@ curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/plugins \
 curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/routes \
   --data "paths[]=${ROUTE_PATH}" \
   --data "name=${ROUTE_NAME}"
+
+
+
+
+#######################################
+# Product microservice
+#######################################
+
+### Load Balancers
+TARGET_1="product:5400"
+TARGET_2="product_copy:5400"
+
+UPSTREAM_NAME="product_upstream"
+
+curl -X POST http://kong:8001/upstreams \
+  --data name=${UPSTREAM_NAME}
+
+curl -X POST http://kong:8001/upstreams/${UPSTREAM_NAME}/targets \
+  --data target="${TARGET_1}"
+
+curl -X POST http://kong:8001/upstreams/${UPSTREAM_NAME}/targets \
+  --data target="${TARGET_2}"
+
+SERVICE_NAME="product_service"
+SERVICE_HOST="product_upstream"
+SERVICE_PORT="80"
+SERVICE_PATH="/product"
+ROUTE_NAME="product_route"
+ROUTE_PATH="/api/v1/product"
+
+curl -i -X POST http://kong:8001/services \
+    --data "name=${SERVICE_NAME}" \
+    --data "url=http://${SERVICE_HOST}:${SERVICE_PORT}${SERVICE_PATH}"
+
+curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/plugins \
+    --data "name=jwt" \
+    
+curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/plugins \
+    --data "name=cors" \
+
+curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/routes \
+  --data "paths[]=${ROUTE_PATH}" \
+  --data "name=${ROUTE_NAME}"
+
