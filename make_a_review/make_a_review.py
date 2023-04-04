@@ -64,6 +64,13 @@ def process_make_review(review):
     order_result = invoke_http(ORDER_URL + "/get/" + review["order_id"], method="GET")
     print(order_result)
     print()
+    if order_result["code"] != 200:
+        return order_result
+    if order_result["data"]["user_id"] != review["user_id"]:
+        return {"code": 404, "message": "Incorrect user for the order"}
+    products_in_order = [item["product_id"] for item in order_result["data"]["items"]]
+    if review["product_id"] not in products_in_order:
+        return {"code": 404, "message": "Product not in order"}
     review["purchase_date"] = order_result["data"]["time"]
 
     print("\n-----Invoking review microservice-----")
@@ -82,7 +89,6 @@ def process_make_review(review):
     seller_email = product_result["data"]["seller_email"]
 
     print("\n-----Invoking mail microservice-----")
-    seller_email = "esdg6t3@gmail.com"
     mail = {
         "recipient": seller_email,
         "type": "bad_review",
