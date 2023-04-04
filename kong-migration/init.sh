@@ -101,12 +101,12 @@ curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/routes \
 # Make review microservice
 #######################################
 
-SERVICE_NAME="make_review_service"
-SERVICE_HOST="make_review"
+SERVICE_NAME="make_a_review_service"
+SERVICE_HOST="make_a_review"
 SERVICE_PORT="5200"
-SERVICE_PATH="/make_review"
-ROUTE_NAME="make_review_route"
-ROUTE_PATH="/api/v1/make_review"
+SERVICE_PATH="/make_a_review"
+ROUTE_NAME="make_a_review_route"
+ROUTE_PATH="/api/v1/make_a_review"
 
 curl -i -X POST http://kong:8001/services \
     --data "name=${SERVICE_NAME}" \
