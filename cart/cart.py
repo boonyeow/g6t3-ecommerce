@@ -53,7 +53,7 @@ def get_cart_by_user_id(user_id):
         )
 
 
-@app.route("/cart/add_item_to_cart/<string:user_id>", methods=["POST"])
+@app.route("/cart/add_item_to_cart/<string:user_id>", methods=["PUT"])
 def add_item_to_user_cart(user_id):
     """
     request_body:
@@ -156,7 +156,7 @@ def add_item_to_user_cart(user_id):
         )
 
 
-@app.route("/cart/remove/<string:user_id>/<string:product_id>", methods=["POST"])
+@app.route("/cart/remove/<string:user_id>/<string:product_id>", methods=["PUT"])
 def remove_item_from_cart(user_id, product_id):
     try:
         cart = cart_collection.find_one({"user_id": user_id})
@@ -197,7 +197,7 @@ def remove_item_from_cart(user_id, product_id):
         )
 
 
-@app.route("/cart/remove_items/<string:user_id>", methods=["POST"])
+@app.route("/cart/remove_items/<string:user_id>", methods=["PUT"])
 def remove_items_from_cart(user_id):
     try:
         cart = cart_collection.find_one({"user_id": user_id})
@@ -249,7 +249,7 @@ def remove_items_from_cart(user_id):
         )
 
 
-@app.route("/cart/set/<string:user_id>", methods=["POST"])
+@app.route("/cart/set/<string:user_id>", methods=["PUT"])
 def set_cart_items(user_id):
     """
     Format of request body:
