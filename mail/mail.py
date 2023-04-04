@@ -53,7 +53,7 @@ def send_email(body):
                 recipient,
                 f"Bad review ({review_stars} star) received on {product_name} by {reviewer_id}",
                 f"""
-                Hello,<br/><br/>
+                Hello {recipient.split("@")[0]},<br/><br/>
                 A user ({reviewer_id}) has just left an unsatisfactory review for your product ({FRONTEND_URL}/product/{product_id})<br/><br/>
                 This is the message left by the user: <b>{review_description}</b><br/><br/>
                 You may want to follow up with them for further details.<br/>
@@ -64,7 +64,7 @@ def send_email(body):
             )
         elif incoming_data["type"] == "order_processing":
             order = incoming_data["order"]
-            subject = f"Your {SITE_NAME} order({order['order_id']}) is now processing."
+            subject = f"Your {SITE_NAME} order ({order['order_id']}) is now processing."
             message = f"""
             Dear {recipient.split("@")[0]},<br/><br/>
             Thank you for shopping with us at {SITE_NAME}! Payment has been completed and your order (Order ID: {order["order_id"]}) is now being processed.<br/><br/>
@@ -73,26 +73,27 @@ def send_email(body):
             
             Items purchased:<br/>
             """
-            message += """
+            message += """<table>
             <tr>
                 <th>Item Name</th>
-                <th>Price</th>
                 <th>Quantity</td>
+                <th>Price</th>
             </tr>
             """
             for item in order["items"]:
                 message += f"""
                 <tr>
                     <td>{item["product_name"]}</td>
-                    <td>{item["price"]}</td>
                     <td>{item["quantity"]}</td>
+                    <td>${item["price"]}</td>
                 </tr>
                 """
             message += f"""
             <tr>
-                <td colspan='2'>Total:</td>
-                <td>{order['paid_amount']}</td>
-            </tr>
+                <td></td>
+                <td>Total:</td>
+                <td>${order['paid_amount']}</td>
+            </tr></table>
             """
 
             message += f"""
@@ -107,8 +108,8 @@ def send_email(body):
 
             subject = f"Product: {product['product_name']} is out of stock!"
             message = f"""
-            Hello, <br/><br/>
-            Your listing of {product['product_name']} is in high demand! A user has tried to make a purchase of {user_quantity} while it was out of stock!<br/><br/>
+            Hello {recipient.split("@")[0]}, <br/><br/>
+            Your listing of {product['product_name']} is in high demand! A user has tried to make a purchase of {user_quantity} qty while it was out of stock!<br/><br/>
             Users who have subscribed to getting notified will receive an email as soon as you have restocked the item.
             <br/><br/>
             Thank you for choosing {SITE_NAME} as your preferred e-commerce platform!<br/><br/>

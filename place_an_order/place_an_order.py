@@ -106,12 +106,16 @@ def process_place_an_order(user_id, request_body):
         if product_id not in products_to_checkout:
             return {"code": 404, "message": f"Product not in cart: {product_id}"}
         if stock < products_to_checkout[product_id]["quantity"]:
+            product["user_quantity"] = products_to_checkout[product_id]["quantity"]
             products_out_of_stock.append(product)
             del products_to_checkout[product_id]
+    print(products_out_of_stock)
+    print(products_to_checkout)
     if products_out_of_stock:
         for product in products_out_of_stock:
+            print(product)
             seller_email = product["seller_email"]
-            quantity = products_to_checkout[product["product_id"]]["quantity"]
+            quantity = product["user_quantity"]
             mail = {
                 "recipient": seller_email,
                 "type": "product_out_of_stock",

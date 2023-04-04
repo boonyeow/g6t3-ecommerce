@@ -127,10 +127,10 @@ def add_item_to_user_cart(user_id):
             )
 
         if item_already_in_cart:
-           if(quantity == 0):
-               cart["items"].pop(item_index)
-           else: 
-               cart["items"][item_index]["quantity"] = item_quantity
+            if quantity == 0:
+                cart["items"].pop(item_index)
+            else:
+                cart["items"][item_index]["quantity"] = item_quantity
 
         cart["total_price"] = calculate_cart_total(cart["items"])
         print(cart)
@@ -300,7 +300,6 @@ def set_cart_items(user_id):
         if not cart:
             cart = {"user_id": user_id, "items": [], "total_price": 0}
             cart_collection.insert_one(cart)
-            del cart["_id"]
 
         product_ids_in_cart = set()
         cart["items"] = []
