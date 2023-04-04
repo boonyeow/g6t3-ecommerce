@@ -137,7 +137,6 @@ def create_product():
             if (
                 not product_request.get("product_name")
                 or not product_request.get("price")
-                or not product_request.get("price_api")
                 or not product_request.get("seller")
                 or not product_request.get("seller_email")
                 or not product_request.get("image_url")
@@ -157,7 +156,6 @@ def create_product():
                 "stock": 0
                 if not product_request.get("stock")
                 else int(product_request.get("stock")),
-                "price_api": product_request.get("price_api"),
                 "seller": product_request.get("seller"),
                 "seller_email": product_request.get("seller_email"),
                 "image_url": product_request.get("image_url"),

@@ -25,7 +25,6 @@ def check_valid_product_request(product):
         not product.get("product_id")
         or not product.get("product_name")
         or not product.get("price")
-        or not product.get("price_api")
         or not product.get("seller_email")
         or product.get("quantity") == None
         or not product.get("image_url")
@@ -62,7 +61,6 @@ def add_item_to_user_cart(user_id):
         product_id,
         product_name,
         price,
-        price_api,
         seller_email,
         quantity
     }
@@ -100,7 +98,6 @@ def add_item_to_user_cart(user_id):
         product_id = request_body.get("product_id")
         product_name = request_body.get("product_name")
         price = request_body.get("price")
-        price_api = request_body.get("price_api")
         seller_email = request_body.get("seller_email")
         quantity = request_body.get("quantity")
         image_url = request_body.get("image_url")
@@ -123,7 +120,6 @@ def add_item_to_user_cart(user_id):
                     "product_id": product_id,
                     "product_name": product_name,
                     "price": price,
-                    "price_api": price_api,
                     "seller_email": seller_email,
                     "quantity": quantity,
                     "image_url": image_url,
@@ -261,7 +257,6 @@ def set_cart_items(user_id):
             product_id,
             product_name,
             price,
-            price_api,
             seller_email,
             quantity
         },
@@ -269,7 +264,6 @@ def set_cart_items(user_id):
             product_id,
             product_name,
             price,
-            price_api,
             seller_email,
             quantity
         },
@@ -314,7 +308,6 @@ def set_cart_items(user_id):
             product_id = product.get("product_id")
             product_name = product.get("product_name")
             price = product.get("price")
-            price_api = product.get("price_api")
             seller_email = product.get("seller_email")
             quantity = product.get("quantity")
             image_url = product.get("image_url")
@@ -324,7 +317,6 @@ def set_cart_items(user_id):
                         "product_id": product_id,
                         "product_name": product_name,
                         "price": price,
-                        "price_api": price_api,
                         "seller_email": seller_email,
                         "quantity": quantity,
                         "image_url": image_url,

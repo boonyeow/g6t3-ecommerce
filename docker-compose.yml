@@ -255,9 +255,9 @@ services:
       - mail
     environment:
       - CART_URL=http://cart:5500/cart
-      - PRODUCT_URL=http://product:5500/product
-      - ORDER_URL=http://order:5500/order
-      - PAYMENT_URL=http://payment:5500/payment
+      - PRODUCT_URL=http://product:5400/product
+      - ORDER_URL=http://order:5300/order
+      - PAYMENT_URL=http://payment:5700/payment
       - PYTHONUNBUFFERED=1
       - rabbit_host=rabbitmq
       - rabbit_port=5672

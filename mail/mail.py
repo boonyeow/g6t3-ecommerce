@@ -12,7 +12,8 @@ routing_key = "*.mail"
 
 MAILGUN_API_KEY = "2e180d571da57a8248b82a70678ed950-30344472-13c94507"
 MAILGUN_DOMAIN_NAME = "sandbox061f45162bc1421eaa4af62f3b6446ae.mailgun.org"
-FRONTEND_URL = "http://localhost:3000"
+FRONTEND_URL = "http://localhost:5173"
+SITE_NAME = ""
 
 
 def receive_mail():
@@ -56,17 +57,65 @@ def send_email(body):
                 A user ({reviewer_id}) has just left an unsatisfactory review for your product ({FRONTEND_URL}/product/{product_id})<br/><br/>
                 This is the message left by the user: <b>{review_description}</b><br/><br/>
                 You may want to follow up with them for further details.<br/>
-                Thank you for choosing ESD G6T3 as your e-commerce platform!<br/><br/>
+                Thank you for choosing {SITE_NAME} as your preferred e-commerce platform!<br/><br/>
                 Regards,<br/>
-                ESD G6T3
+                {SITE_NAME}
                 """,
             )
         elif incoming_data["type"] == "order_processing":
             order = incoming_data["order"]
+            subject = f"Your {SITE_NAME} order({order['order_id']}) is now processing."
+            message = f"""
+            Dear {recipient.split("@")[0]},<br/><br/>
+            Thank you for shopping with us at {SITE_NAME}! Payment has been completed and your order (Order ID: {order["order_id"]}) is now being processed.<br/><br/>
             
-            subject=""
-            message=""
-            result=send_email(recipient, subject, message)
+            We'll let you know once your item(s) have been dispatched. You can view the status of your order at {FRONTEND_URL}/order/{order["order_id"]}<br/><br/>
+            
+            Items purchased:<br/>
+            """
+            message += """
+            <tr>
+                <th>Item Name</th>
+                <th>Price</th>
+                <th>Quantity</td>
+            </tr>
+            """
+            for item in order["items"]:
+                message += f"""
+                <tr>
+                    <td>{item["product_name"]}</td>
+                    <td>{item["price"]}</td>
+                    <td>{item["quantity"]}</td>
+                </tr>
+                """
+            message += f"""
+            <tr>
+                <td colspan='2'>Total:</td>
+                <td>{order['paid_amount']}</td>
+            </tr>
+            """
+
+            message += f"""
+            <br/><br/>
+            We hope to see you again soon.
+            {SITE_NAME}
+            """
+            result = send_mail(recipient, subject, message)
+        elif incoming_data["type"] == "product_out_of_stock":
+            product = incoming_data["product"]
+            user_quantity = incoming_data["user_quantity"]
+
+            subject = f"Product: {product['product_name']} is out of stock!"
+            message = f"""
+            Hello, <br/><br/>
+            Your listing of {product['product_name']} is in high demand! A user has tried to make a purchase of {user_quantity} while it was out of stock!<br/><br/>
+            Users who have subscribed to getting notified will receive an email as soon as you have restocked the item.
+            <br/><br/>
+            Thank you for choosing {SITE_NAME} as your preferred e-commerce platform!<br/><br/>
+            Regards,<br/>
+            {SITE_NAME}
+            """
+            result = send_mail(recipient, subject, message)
 
         if result["code"] == 200:
             print(f"Message succesfully sent to {recipient}")
@@ -87,7 +136,7 @@ def send_mail(recipient, subject, message):
             f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN_NAME}/messages",
             auth=("api", MAILGUN_API_KEY),
             data={
-                "from": f"ESD G6T3 <esd-g6t3@{MAILGUN_DOMAIN_NAME}>",
+                "from": f"{SITE_NAME} <esd-g6t3@{MAILGUN_DOMAIN_NAME}>",
                 "to": [recipient],
                 "subject": subject,
                 "text": message,

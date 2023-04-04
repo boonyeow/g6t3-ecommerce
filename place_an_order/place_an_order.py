@@ -14,6 +14,7 @@ CART_URL = os.environ.get("CART_URL") or "http://localhost:5500/cart"
 PRODUCT_URL = os.environ.get("PRODUCT_URL") or "http://localhost:5400/product"
 ORDER_URL = os.environ.get("ORDER_URL") or "http://localhost:5300/order"
 PAYMENT_URL = os.environ.get("PAYMENT_URL") or "http://localhost:5700/payment"
+amqp_setup.check_setup()
 
 
 @app.route("/place_an_order/<string:user_id>", methods=["POST"])
@@ -108,6 +109,22 @@ def process_place_an_order(user_id, request_body):
             products_out_of_stock.append(product)
             del products_to_checkout[product_id]
     if products_out_of_stock:
+        for product in products_out_of_stock:
+            seller_email = product["seller_email"]
+            quantity = products_to_checkout[product["product_id"]]["quantity"]
+            mail = {
+                "recipient": seller_email,
+                "type": "product_out_of_stock",
+                "product": product,
+                "user_quantity": quantity,
+            }
+            message = json.dumps(mail)
+            amqp_setup.channel.basic_publish(
+                exchange=amqp_setup.exchangename,
+                routing_key="product.mail",
+                body=message,
+                properties=pika.BasicProperties(delivery_mode=2),
+            )
         return {
             "code": 400,
             "data": {
@@ -193,7 +210,6 @@ def process_place_an_order(user_id, request_body):
         "order": confirmed_order_results["data"],
     }
     message = json.dumps(mail)
-    amqp_setup.check_setup()
     amqp_setup.channel.basic_publish(
         exchange=amqp_setup.exchangename,
         routing_key="order.mail",
