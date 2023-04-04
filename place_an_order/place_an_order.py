@@ -31,12 +31,12 @@ def place_an_order(user_id):
                 400,
             )
 
-        request_body = request.get_json()
+        card_details = request.get_json()["card"]
 
         print("Placing a new order for user:", user_id)
-        print("Request details:", request_body)
+        print("Card details:", card_details)
 
-        result = process_place_an_order(user_id, request_body)
+        result = process_place_an_order(user_id, card_details)
 
         return jsonify(result), result["code"]
 
@@ -52,10 +52,7 @@ def place_an_order(user_id):
         )
 
 
-def process_place_an_order(user_id, request_body):
-    product_ids_to_checkout = request_body["product_ids"]
-    card_details = request_body["card"]
-
+def process_place_an_order(user_id, card_details):
     # Call payment microservice to check card
     print("\n-----Invoking payment microservice to check card-----")
     card_results = invoke_http(
@@ -80,19 +77,14 @@ def process_place_an_order(user_id, request_body):
         return cart_result
     if not cart_items:
         return {"code": 400, "message": "Error. No items in cart."}
-
-    products_to_checkout = {
-        item["product_id"]: item
-        for item in cart_items
-        if item["product_id"] in product_ids_to_checkout
-    }
+    products_in_cart_dict = {product["product_id"]: product for product in cart_items}
 
     print("\n-----Invoking product microservice-----")
     # Call product microservice to check item availability
     product_result = invoke_http(
         PRODUCT_URL + "/get_by_ids",
         method="GET",
-        json={"products": list(product_ids_to_checkout)},
+        json={"products": list(products_in_cart_dict.keys())},
     )
     print(product_result)
     print()
@@ -100,17 +92,17 @@ def process_place_an_order(user_id, request_body):
         return product_result
 
     products_out_of_stock = []
+
     for product in product_result["data"]:
         stock = product["stock"]
         product_id = product["product_id"]
-        if product_id not in products_to_checkout:
-            return {"code": 404, "message": f"Product not in cart: {product_id}"}
-        if stock < products_to_checkout[product_id]["quantity"]:
-            product["user_quantity"] = products_to_checkout[product_id]["quantity"]
+        customer_qty = products_in_cart_dict[product_id]["quantity"]
+        if stock < customer_qty:
+            product["user_quantity"] = customer_qty
             products_out_of_stock.append(product)
-            del products_to_checkout[product_id]
+            del products_in_cart_dict[product_id]
     print(products_out_of_stock)
-    print(products_to_checkout)
+    print(products_in_cart_dict)
     if products_out_of_stock:
         for product in products_out_of_stock:
             print(product)
@@ -132,7 +124,7 @@ def process_place_an_order(user_id, request_body):
         return {
             "code": 400,
             "data": {
-                "cart": list(products_to_checkout.values()),
+                "cart": list(products_in_cart_dict.values()),
                 "removed_items": products_out_of_stock,
             },
             "message": "product out of stock",
@@ -143,7 +135,7 @@ def process_place_an_order(user_id, request_body):
     order_result = invoke_http(
         ORDER_URL + "/create",
         method="POST",
-        json={"user_id": user_id, "items": list(products_to_checkout.values())},
+        json={"user_id": user_id, "items": list(products_in_cart_dict.values())},
     )
     print(order_result)
     print()
@@ -184,10 +176,10 @@ def process_place_an_order(user_id, request_body):
         json={
             "products": [
                 {
-                    "product_id": products_to_checkout[product].get("product_id"),
-                    "quantity": products_to_checkout[product].get("quantity"),
+                    "product_id": products_in_cart_dict[product].get("product_id"),
+                    "quantity": products_in_cart_dict[product].get("quantity"),
                 }
-                for product in products_to_checkout
+                for product in products_in_cart_dict
             ]
         },
     )
@@ -199,9 +191,8 @@ def process_place_an_order(user_id, request_body):
 
     # Call cart microservice to remove purchased items
     new_cart_result = invoke_http(
-        CART_URL + f"/remove_items/{user_id}",
-        method="POST",
-        json={"product_ids": product_ids_to_checkout},
+        CART_URL + f"/clear/{user_id}",
+        method="PUT",
     )
     print(new_cart_result)
     print()

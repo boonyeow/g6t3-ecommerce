@@ -75,7 +75,7 @@ def process_add_to_cart(user_id, product_object):
 
     print("\n-----Invoking cart microservice to add product to cart-----")
     new_cart_result = invoke_http(
-        CART_URL + f"/add_item_to_cart/{user_id}", method="POST", json=product_object
+        CART_URL + f"/add_item_to_cart/{user_id}", method="PUT", json=product_object
     )
     print(new_cart_result)
     print()

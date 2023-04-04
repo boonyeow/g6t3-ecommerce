@@ -251,6 +251,7 @@ services:
     build:
       context: ./add_to_cart
       dockerfile: add_to_cart.Dockerfile
+    image: alvinling2021/add_to_cart
     restart: always
     depends_on:
       - product
