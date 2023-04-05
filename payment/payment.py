@@ -20,7 +20,7 @@ def check_card_validity():
         stripe.Customer.create_source(customer["id"], source=stripe_token)
         print(stripe_token)
 
-        return jsonify({"code": 200, "data": stripe_token}), 200
+        return jsonify({"code": 200, "data": "card valid"}), 200
     except Exception as e:
         return (
             jsonify(
