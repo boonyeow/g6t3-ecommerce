@@ -49,7 +49,7 @@ This is the backend microservice for the G6T3 E-Commerce web application. It pro
 **Database**
 
 - MongoDB
-- PostGres
+- PostgreSQL
 
 **Others**
 
