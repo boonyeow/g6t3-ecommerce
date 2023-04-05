@@ -104,23 +104,6 @@ def process_place_an_order(user_id, card_details):
     print(products_out_of_stock)
     print(products_in_cart_dict)
     if products_out_of_stock:
-        for product in products_out_of_stock:
-            print(product)
-            seller_email = product["seller_email"]
-            quantity = product["user_quantity"]
-            mail = {
-                "recipient": seller_email,
-                "type": "product_out_of_stock",
-                "product": product,
-                "user_quantity": quantity,
-            }
-            message = json.dumps(mail)
-            amqp_setup.channel.basic_publish(
-                exchange=amqp_setup.exchangename,
-                routing_key="product.mail",
-                body=message,
-                properties=pika.BasicProperties(delivery_mode=2),
-            )
         return {
             "code": 400,
             "data": {

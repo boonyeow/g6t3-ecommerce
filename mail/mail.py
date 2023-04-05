@@ -102,21 +102,6 @@ def send_email(body):
             {SITE_NAME}
             """
             result = send_mail(recipient, subject, message)
-        elif incoming_data["type"] == "product_out_of_stock":
-            product = incoming_data["product"]
-            user_quantity = incoming_data["user_quantity"]
-
-            subject = f"Product: {product['product_name']} is out of stock!"
-            message = f"""
-            Hello {recipient.split("@")[0]}, <br/><br/>
-            Your listing of {product['product_name']} is in high demand! A user has tried to make a purchase of {user_quantity} qty while it was out of stock!<br/><br/>
-            Users who have subscribed to getting notified will receive an email as soon as you have restocked the item.
-            <br/><br/>
-            Thank you for choosing {SITE_NAME} as your preferred e-commerce platform!<br/><br/>
-            Regards,<br/>
-            {SITE_NAME}
-            """
-            result = send_mail(recipient, subject, message)
 
         if result["code"] == 200:
             print(f"Message succesfully sent to {recipient}")
