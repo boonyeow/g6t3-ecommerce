@@ -28,23 +28,9 @@ curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/routes \
 #######################################
 # Auth Service
 #######################################
-TARGET_1="auth:5001"
-TARGET_2="auth_copy:5001"
-
-UPSTREAM_NAME="auth_upstream"
-
-curl -X POST http://kong:8001/upstreams \
-  --data name=${UPSTREAM_NAME}
-
-curl -X POST http://kong:8001/upstreams/${UPSTREAM_NAME}/targets \
-  --data target="${TARGET_1}"
-
-curl -X POST http://kong:8001/upstreams/${UPSTREAM_NAME}/targets \
-  --data target="${TARGET_2}"
-
 SERVICE_NAME="auth_service"
-SERVICE_HOST="auth_upstream"
-SERVICE_PORT="80"
+SERVICE_HOST="auth"
+SERVICE_PORT="5001"
 SERVICE_PATH=""
 ROUTE_NAME="auth_route"
 ROUTE_PATH="/api/v1/auth"
@@ -59,6 +45,7 @@ curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/plugins \
 curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/routes \
   --data "paths[]=${ROUTE_PATH}" \
   --data "name=${ROUTE_NAME}"
+
 
 #######################################
 # Review microservice
@@ -114,22 +101,10 @@ curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/routes \
 #######################################
 # Order microservice
 #######################################
-TARGET_1="order:5300"
-TARGET_2="order_copy:5300"
-UPSTREAM_NAME="order_upstream"
-
-curl -X POST http://kong:8001/upstreams \
-  --data name=${UPSTREAM_NAME}
-
-curl -X POST http://kong:8001/upstreams/${UPSTREAM_NAME}/targets \
-  --data target="${TARGET_1}"
-
-curl -X POST http://kong:8001/upstreams/${UPSTREAM_NAME}/targets \
-  --data target="${TARGET_2}"
 
 SERVICE_NAME="order_service"
-SERVICE_HOST="order_upstream"
-SERVICE_PORT="80"
+SERVICE_HOST="order"
+SERVICE_PORT="5300"
 SERVICE_PATH="/order"
 ROUTE_NAME="order_route"
 ROUTE_PATH="/api/v1/order"
@@ -154,22 +129,9 @@ curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/routes \
 # Cart microservice
 #######################################
 
-TARGET_1="cart:5500"
-TARGET_2="cart_copy:5500"
-UPSTREAM_NAME="cart_upstream"
-
-curl -X POST http://kong:8001/upstreams \
-  --data name=${UPSTREAM_NAME}
-
-curl -X POST http://kong:8001/upstreams/${UPSTREAM_NAME}/targets \
-  --data target="${TARGET_1}"
-
-curl -X POST http://kong:8001/upstreams/${UPSTREAM_NAME}/targets \
-  --data target="${TARGET_2}"
-
 SERVICE_NAME="cart_service"
-SERVICE_HOST="cart_upstream"
-SERVICE_PORT="80"
+SERVICE_HOST="cart"
+SERVICE_PORT="5500"
 SERVICE_PATH="/cart"
 ROUTE_NAME="cart_route"
 ROUTE_PATH="/api/v1/cart"
@@ -294,23 +256,10 @@ curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/routes \
 #######################################
 # Product microservice
 #######################################
-TARGET_1="product:5400"
-TARGET_2="product_copy:5400"
-
-UPSTREAM_NAME="product_upstream"
-
-curl -X POST http://kong:8001/upstreams \
-  --data name=${UPSTREAM_NAME}
-
-curl -X POST http://kong:8001/upstreams/${UPSTREAM_NAME}/targets \
-  --data target="${TARGET_1}"
-
-curl -X POST http://kong:8001/upstreams/${UPSTREAM_NAME}/targets \
-  --data target="${TARGET_2}"
 
 SERVICE_NAME="product_service"
-SERVICE_HOST="product_upstream"
-SERVICE_PORT="80"
+SERVICE_HOST="product"
+SERVICE_PORT="5400"
 SERVICE_PATH="/product"
 ROUTE_NAME="product_route"
 ROUTE_PATH="/api/v1/product"
@@ -328,4 +277,3 @@ curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/plugins \
 curl -i -X POST http://kong:8001/services/${SERVICE_NAME}/routes \
   --data "paths[]=${ROUTE_PATH}" \
   --data "name=${ROUTE_NAME}"
-

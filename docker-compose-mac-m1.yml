@@ -16,6 +16,7 @@ services:
   kong-database:
     container_name: kong-database
     image: postgres:9.6
+    platform: linux/amd64
     restart: always
     networks:
       - kong-net
@@ -38,6 +39,7 @@ services:
   #######################################
   kong-migration:
     container_name: kong-migration
+    platform: linux/amd64
     build:
       context: ./kong-migration
       dockerfile: migration.Dockerfile
@@ -61,6 +63,7 @@ services:
   kong:
     container_name: kong
     image: kong:2.0.4
+    platform: linux/amd64
     restart: always
     networks:
       - kong-net
@@ -77,13 +80,14 @@ services:
     ports:
       - "8001:8001"
       - "8000:8000"
-      
+
   #######################################
   # Konga: Kong GUI
   #######################################
   konga:
     container_name: konga
     image: pantsel/konga
+    platform: linux/amd64
     restart: always
     networks:
       - kong-net
@@ -107,6 +111,7 @@ services:
   #######################################
   auth:
     container_name: auth
+    platform: linux/amd64
     networks:
       - kong-net
     build:
@@ -118,6 +123,7 @@ services:
 
   auth_copy:
     container_name: auth_copy
+    platform: linux/amd64
     networks:
       - kong-net
     build:
@@ -126,12 +132,13 @@ services:
     restart: always
     ports:
       - "5051:5001"
-  
+
   #######################################
   # RabbitMQ: Messaging broker
   #######################################
   rabbitmq:
     container_name: rabbitmq
+    platform: linux/amd64
     networks:
       - kong-net
     image: rabbitmq:3-management
@@ -148,6 +155,7 @@ services:
   #######################################
   mail:
     container_name: mail
+    platform: linux/amd64
     networks:
       - kong-net
     build:
@@ -167,6 +175,7 @@ services:
   #######################################
   review:
     container_name: review
+    platform: linux/amd64
     networks:
       - kong-net
     build:
@@ -176,12 +185,13 @@ services:
     restart: always
     ports:
       - "5100:8080"
-  
+
   #######################################
   # Order microservice
   #######################################
   order:
     container_name: order
+    platform: linux/amd64
     networks:
       - kong-net
     build:
@@ -203,12 +213,13 @@ services:
     restart: always
     ports:
       - "5350:5300"
-  
+
   #######################################
   # Product microservice
   #######################################
   product:
     container_name: product
+    platform: linux/amd64
     networks:
       - kong-net
     build:
@@ -221,6 +232,7 @@ services:
 
   product_copy:
     container_name: product_copy
+    platform: linux/amd64
     networks:
       - kong-net
     build:
@@ -236,6 +248,7 @@ services:
   #######################################
   cart:
     container_name: cart
+    platform: linux/amd64
     networks:
       - kong-net
     build:
@@ -248,6 +261,7 @@ services:
 
   cart_copy:
     container_name: cart_copy
+    platform: linux/amd64
     networks:
       - kong-net
     build:
@@ -263,6 +277,7 @@ services:
   #######################################
   payment:
     container_name: payment
+    platform: linux/amd64
     networks:
       - kong-net
     build:
@@ -274,10 +289,11 @@ services:
       - "5700:5700"
 
   #######################################
-  # Product notification microservice  
+  # Product notification microservice
   #######################################
   product_notification:
     container_name: product_notification
+    platform: linux/amd64
     networks:
       - kong-net
     build:
@@ -293,6 +309,7 @@ services:
   #######################################
   add_to_cart:
     container_name: add_to_cart
+    platform: linux/amd64
     networks:
       - kong-net
     build:
@@ -310,12 +327,12 @@ services:
     ports:
       - "5900:5900"
 
-
   #######################################
   # Make a review complex microservice 2
   #######################################
   make_a_review:
     container_name: make_a_review
+    platform: linux/amd64
     networks:
       - kong-net
     build:
@@ -344,6 +361,7 @@ services:
   #######################################
   place_an_order:
     container_name: place_an_order
+    platform: linux/amd64
     networks:
       - kong-net
     build:
