@@ -138,6 +138,12 @@ def process_place_an_order(user_id, card_details):
     print()
 
     if payment_result["code"] != 200:
+        print("\n-----Invoking order microservice to update order status-----")
+        failed_order_results = invoke_http(
+            ORDER_URL + f"/failed/{order_result['data']['order_id']}", method="PUT"
+        )
+        print(failed_order_results)
+        print()
         return payment_result
 
     # Call order microservice to update order status
