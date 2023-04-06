@@ -17,17 +17,6 @@ PRODUCT_URL = os.environ.get("PRODUCT_URL") or "http://localhost:5400/product"
 
 @app.route("/make_a_review", methods=["POST"])
 def make_a_review():
-    """
-    This is the function that handles making a new review
-    format of a review:
-    {
-        product_id,
-        order_id,
-        user_id,
-        review_description,
-        review_stars
-    }
-    """
     if request.is_json:
         try:
             review = request.get_json()

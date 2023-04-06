@@ -55,16 +55,6 @@ def get_cart_by_user_id(user_id):
 
 @app.route("/cart/add_item_to_cart/<string:user_id>", methods=["PUT"])
 def add_item_to_user_cart(user_id):
-    """
-    request_body:
-    {
-        product_id,
-        product_name,
-        price,
-        seller_email,
-        quantity
-    }
-    """
     try:
         if not request.is_json:
             return jsonify(
@@ -251,25 +241,6 @@ def remove_items_from_cart(user_id):
 
 @app.route("/cart/set/<string:user_id>", methods=["PUT"])
 def set_cart_items(user_id):
-    """
-    Format of request body:
-    [
-        {
-            product_id,
-            product_name,
-            price,
-            seller_email,
-            quantity
-        },
-        {
-            product_id,
-            product_name,
-            price,
-            seller_email,
-            quantity
-        },
-    ]
-    """
     try:
         if not request.is_json:
             return (
